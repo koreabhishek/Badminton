@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton Player Categorization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://i.pinimg.com/736x/4c/a6/2d/4ca62d861f142d8d878fd1d6a6ad5569.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .category {
+            margin-bottom: 20px;
+        }
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .player {
+            padding: 10px 15px;
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        .selected {
+            background-color: white;
+            color: black;
+        }
+        button {
+            padding: 15px 30px;
+            background-color: #FF4500;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Badminton Player Categorization</h2>
+
+        <div class="category">
+            <h3>Beginner (Max: 9)</h3>
+            <div class="player-list" id="beginner-list"></div>
+        </div>
+        <div class="category">
+            <h3>Intermediate (Max: 9)</h3>
+            <div class="player-list" id="intermediate-list"></div>
+        </div>
+        <div class="category">
+            <h3>Advanced (Max: 9)</h3>
+            <div class="player-list" id="advanced-list"></div>
+        </div>
+
+        <button onclick="submitVotes()">Submit Votes</button>
+    </div>
+
+    <script>
+        const players = [
+            "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack",
+            "Kelly", "Leo", "Mia", "Nina", "Oscar", "Paul", "Quinn", "Rose", "Steve", "Tina",
+            "Uma", "Victor", "Wendy", "Xander", "Yara", "Zane", "John"
+        ];
+        const maxCategoryCount = 9;
+        let categorizedPlayers = {};
+
+        function createPlayerElements(containerId) {
+            const container = document.getElementById(containerId);
+            players.forEach(player => {
+                const playerDiv = document.createElement("div");
+                playerDiv.classList.add("player");
+                playerDiv.innerText = player;
+                playerDiv.onclick = () => toggleSelection(player, containerId, playerDiv);
+                container.appendChild(playerDiv);
+            });
+        }
+
+        function toggleSelection(player, category, element) {
+            if (categorizedPlayers[player] && categorizedPlayers[player] !== category) {
+                alert(`${player} is already categorized as ${categorizedPlayers[player]}`);
+                return;
+            }
+
+            const selectedCategory = document.getElementById(category);
+            const selectedCount = selectedCategory.getElementsByClassName("selected").length;
+
+            if (element.classList.contains("selected")) {
+                element.classList.remove("selected");
+                delete categorizedPlayers[player];
+            } else {
+                if (selectedCount < maxCategoryCount) {
+                    element.classList.add("selected");
+                    categorizedPlayers[player] = category;
+                } else {
+                    alert(`Maximum limit of 9 reached for ${category}`);
+                }
+            }
+        }
+
+        function submitVotes() {
+            const url = "https://script.google.com/macros/s/AKfycbwHxl-CGeMjw5tkoiRryPzR3EckCsqq1fK-b0nl9meZiNu23Zl5OhDNECbuSRLFyluaww/exec";  // Replace with your Google Apps Script URL
+            const votes = [];
+
+            for (const player in categorizedPlayers) {
+                votes.push({ player: player, category: categorizedPlayers[player] });
+            }
+
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(votes),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.text())
+            .then(data => alert('Votes submitted successfully!'))
+            .catch(error => alert('Error submitting votes.'));
+        }
+
+        createPlayerElements("beginner-list");
+        createPlayerElements("intermediate-list");
+        createPlayerElements("advanced-list");
+    </script>
+</body>
+</html>
